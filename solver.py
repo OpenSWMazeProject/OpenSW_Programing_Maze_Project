@@ -27,7 +27,7 @@ def dfs_with_visualization(maze):
     visited, path = [], []
 
     def dfs(x, y):
-        if x < 0 or y < 0 or x >= n or y >= m or maze[x][y] == 1 or (x, y) in visited:
+        if x < 0 or y < 0 or x >= n or y >= m or maze[x][y] == 0 or (x, y) in visited:
             return False
         
         visited.append((x, y))  
@@ -46,29 +46,36 @@ def dfs_with_visualization(maze):
     
     plt.figure(figsize=(6, 6))  #
     dfs(0, 0)
+    path.reverse()  # 경로를 올바른 순서로 정렬
     draw_maze(maze, path, visited)  
     plt.show()
+    
+    return visited, path
 
-# 미로 예시 (0은 통로, 1은 벽)
+# 미로 예시 (1은 통로, 0은 벽)
 maze1 = [
-    [0, 1, 0, 0, 0],
-    [0, 1, 1, 1, 0],
-    [0, 0, 0, 1, 0],
-    [1, 1, 0, 1, 1],
-    [1, 0, 0, 0, 0]
+    [1, 0, 1, 1, 1],
+    [1, 0, 0, 0, 1],
+    [1, 1, 1, 0, 1],
+    [0, 0, 1, 0, 0],
+    [0, 1, 1, 1, 1]
 ]
 maze = [
-    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 1, 0, 1, 0, 0, 1],
-    [1, 0, 1, 0, 1, 0, 1, 1, 0, 1],
-    [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
-    [1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
-    [1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-    [1, 1, 1, 1, 0, 1, 1, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-    [1, 1, 1, 1, 1, 1, 0, 1, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 0, 0]
+    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 1, 1, 0, 1, 0, 1, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 0, 1, 0],
+    [0, 1, 0, 1, 1, 1, 1, 0, 1, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
+    [0, 1, 1, 1, 1, 0, 1, 1, 1, 0],
+    [0, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0, 1, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 1, 1]
 ]
 
 # 미로 탐색 실행 및 시각화
-dfs_with_visualization(maze)
+visited, path = dfs_with_visualization(maze)
+
+# 방문한 경로와 최종 경로 출력
+print("Visited path:", visited)
+print("Final path:", path)

@@ -40,7 +40,7 @@ pygame.init()
 font = pygame.font.Font(None, 36)
 
 # 화면 크기와 색상 설정
-screen_size = (1024, 1024)
+screen_size = (800, 800)
 screen = pygame.display.set_mode(screen_size)
 pygame.display.set_caption('5x5 그리드 예제')
 button_color = (0, 128, 255)
