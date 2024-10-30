@@ -77,5 +77,5 @@ maze = [
 visited, path = dfs_with_visualization(maze)
 
 # 방문한 경로와 최종 경로 출력
-print("Visited path:", visited)
-print("Final path:", path)
+print("route:", visited)
+print("path:", path)

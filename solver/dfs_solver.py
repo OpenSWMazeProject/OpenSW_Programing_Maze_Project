@@ -81,5 +81,5 @@ end = (9, 9)
 
 visited, path = dfs_solver(maze, start, end)
 
-print("route", visited)
+print("route:", visited)
 print("path:", path)
