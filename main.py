@@ -1,6 +1,7 @@
 ## 창을 띄워 미로를 생성하고 해결
 import pygame
 import sys
+import generator
 
 class Button:
     def __init__(self, text, x, y, width, height):
@@ -22,13 +23,14 @@ def make():
 
 # 그리드 그리기
 def draw_grid(n):
-    print("test")
-    cell_size = screen_size[0] // n
+
+    cell_size = (screen_size[0]-100) // n
+    print(cell_size)
     for i in range(n):
         for j in range(n):
             rect = pygame.Rect(j * cell_size, i * cell_size + 60, cell_size, cell_size)
-            if grid[i][j] == 1:
-                color = (0, 255, 0)  # 그리드 칸이 활성화되면 초록색
+            if grid[i][j] == 0:
+                color = (0, 0, 0)  # 그리드 칸이 벽이라면 검은색
             else:
                 color = (200, 200, 200)  # 기본 색상
             pygame.draw.rect(screen, color, rect, 0)
@@ -40,7 +42,7 @@ pygame.init()
 font = pygame.font.Font(None, 36)
 
 # 화면 크기와 색상 설정
-screen_size = (1024, 1024)
+screen_size = (900, 900)
 screen = pygame.display.set_mode(screen_size)
 pygame.display.set_caption('5x5 그리드 예제')
 button_color = (0, 128, 255)
@@ -51,7 +53,7 @@ generate_button = Button("Generate", 0, 0, 100, 50)
 solve_button = Button("Solve", 110, 0, 100, 50)
 
 # 그리드 설정
-grid_size = 10
+grid_size = 11
 
 grid = [[0 for _ in range(grid_size)] for _ in range(grid_size)]
 
@@ -71,6 +73,7 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if generate_button.is_clicked(event.pos):
                 is_draw = True
+                generator.create_maze(grid)
             if solve_button.is_clicked(event.pos):
                 make()
             if input_box.collidepoint(event.pos):
