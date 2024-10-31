@@ -1,6 +1,7 @@
 ## 창을 띄워 미로를 생성하고 해결
 import pygame
 import sys
+from solver.dfs_solver import dfs_solver, bfs_solver, dijkstra_solver
 
 class Button:
     def __init__(self, text, x, y, width, height):
