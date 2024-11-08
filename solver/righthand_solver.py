@@ -1,6 +1,6 @@
 from collections import deque
 
-def righthand_solver(maze, start, end):
+def solver(maze, start, end):
     n, m = len(maze), len(maze[0])
     dir = 0 #이동할 방향 (0~3)
     directions = [(1,0), (0, -1), (-1, 0), (0, 1)] #나아가는 방향 (하,좌,상,우)
@@ -55,7 +55,7 @@ if __name__ == "__main__" :
     start = (0, 0)
     end = (9, 9)
 
-    visited, path = righthand_solver(maze, start, end)
+    visited, path = solver(maze, start, end)
 
     print("route:", visited)
     print("path:", path)
