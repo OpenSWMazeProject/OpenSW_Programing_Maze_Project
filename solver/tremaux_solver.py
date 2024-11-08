@@ -1,6 +1,6 @@
 from collections import deque
 
-def tremaux_solver(maze, start, end):
+def solver(maze, start, end):
     n, m = len(maze), len(maze[0])
     directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
     visited = []
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     start = (0, 0)
     end = (9, 9)
 
-    visited, path = tremaux_solver(maze, start, end)
+    visited, path = solver(maze, start, end)
 
     print("route:", visited)
     print("path:", path)
