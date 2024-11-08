@@ -2,6 +2,10 @@
 import pygame
 import sys
 import generator
+from solver import bfs_solver, dfs_solver, dijkstra_solver, a_star_solver, random_mouse_solver, righthand_solver, tremaux_solver
+import time
+import threading
+
 
 class Button:
     def __init__(self, text, x, y, width, height):
@@ -25,17 +29,97 @@ def make():
 def draw_grid(n):
 
     cell_size = (screen_size[0]-100) // n
-    print(cell_size)
+    #벽은 0 길은 1 방문경로는 2 최종경로는 3
     for i in range(n):
         for j in range(n):
             rect = pygame.Rect(j * cell_size, i * cell_size + 60, cell_size, cell_size)
             if grid[i][j] == 0:
                 color = (0, 0, 0)  # 그리드 칸이 벽이라면 검은색
+            elif grid[i][j] == 1: #그리드 칸이 길라면 회색
+                color = (200, 200, 200)
+            elif grid[i][j] == 2: #그리드 칸이 방문 경로라면 파란색
+                color = (0, 0, 255)
+            elif grid[i][j] == 3: #그리드 칸이 최종 경로라면 초록색
+                color = (0, 255, 0)
             else:
                 color = (200, 200, 200)  # 기본 색상
             pygame.draw.rect(screen, color, rect, 0)
             pygame.draw.rect(screen, (0, 0, 0), rect, 2)  # 경계선
 
+#Solver 알고리즘 선택택 팝업
+def show_popup():
+    popup_active = True
+    while popup_active:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                popup_active = False
+
+        screen.fill((255, 255, 255))
+        font = pygame.font.Font(None, 48)
+        text_surface = font.render("Select Solver:", True, (0, 0, 0))
+        screen.blit(text_surface, (screen_size[0] // 2 - text_surface.get_width() // 2, screen_size[1] // 2 - 300))
+
+        # 항목 버튼 그리기
+        item_buttons = [
+            Button("BFS", screen_size[0] // 2 - 100, screen_size[1] // 2 - 250, 200, 50),
+            Button("DFS", screen_size[0] // 2 - 100, screen_size[1] // 2 - 190, 200, 50),
+            Button("Dijkstra", screen_size[0] // 2 - 100, screen_size[1] // 2 - 130, 200, 50),
+            Button("A-Star", screen_size[0] // 2 - 100, screen_size[1] // 2 - 70, 200, 50),
+            Button("Random Mouse", screen_size[0] // 2 - 100, screen_size[1] // 2 - 10, 200, 50),
+            Button("Right-Hand", screen_size[0] // 2 - 100, screen_size[1] // 2 + 50, 200, 50),
+            Button("Tremaux", screen_size[0] // 2 - 100, screen_size[1] // 2 + 110, 200, 50),
+            
+        ]
+
+        for button in item_buttons:
+            button.draw(screen)
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                for button_index in range(len(item_buttons)):
+                    if item_buttons[button_index].is_clicked(pos):
+                        if button_index == 0:
+                            visited, paths = bfs_solver.solver(grid, (0, 0), (grid_size-1, grid_size-1))
+                        if button_index == 1:
+                            visited, paths = dfs_solver.solver(grid, (0, 0), (grid_size-1, grid_size-1))
+                        if button_index == 2:
+                            visited, paths = dijkstra_solver.solver(grid, (0, 0), (grid_size-1, grid_size-1))   
+                        if button_index == 3:
+                            visited, paths = a_star_solver.solver(grid, (0, 0), (grid_size-1, grid_size-1))   
+                        if button_index == 4:
+                            visited, paths = random_mouse_solver.solver(grid, (0, 0), (grid_size-1, grid_size-1))  
+                        if button_index == 5:
+                            visited, paths = righthand_solver.solver(grid, (0, 0), (grid_size-1, grid_size-1))
+                        if button_index == 6:
+                            visited, paths = tremaux_solver.solver(grid, (0, 0), (grid_size-1, grid_size-1))
+
+                        popup_active = False
+    return visited, paths
+#계산된 탐색 목록, 경로를 실제로 그리기
+def draw_path(visited, paths):
+
+    for visit in visited:
+        grid[visit[0]][visit[1]] = 2
+        time.sleep(0.1)
+    for path in paths:
+        grid[path[0]][path[1]] = 3
+        
+#탐색 목록, 경로 흔적 초기화        
+def init_grid():
+    for x in range(grid_size):
+        for y in range(grid_size):
+            if grid[x][y] == 2 or grid[x][y] == 3:
+                grid[x][y] = 1
 # Pygame 초기화
 pygame.init()
 
@@ -53,7 +137,7 @@ generate_button = Button("Generate", 0, 0, 100, 50)
 solve_button = Button("Solve", 110, 0, 100, 50)
 
 # 그리드 설정
-grid_size = 11
+grid_size = 21
 
 grid = [[0 for _ in range(grid_size)] for _ in range(grid_size)]
 
@@ -75,7 +159,13 @@ while running:
                 is_draw = True
                 generator.create_maze(grid)
             if solve_button.is_clicked(event.pos):
-                make()
+
+                visited, paths = show_popup()
+                init_grid()
+                #Thread 모듈을 사용해 경로 표시를 실시간으로 수행
+                visualizer = threading.Thread(target = draw_path, args = (visited, paths))
+                visualizer.start()
+                
             if input_box.collidepoint(event.pos):
                 active = not active
             color = color_active if active else color_inactive
@@ -84,7 +174,7 @@ while running:
         if event.type == pygame.KEYDOWN:
             if active:
                 if event.key == pygame.K_RETURN:
-                    print("입력된 값:", text)
+
                     grid_size = int(text)
                     grid = [[0 for _ in range(grid_size)] for _ in range(grid_size)]
                     text = ''
