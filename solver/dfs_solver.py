@@ -23,7 +23,7 @@ def draw_maze(maze, path=None, visited=None, delay=0.2):
 '''
 
 # DFS
-def dfs_solver(maze, start, end):
+def solver(maze, start, end):
     n, m = len(maze), len(maze[0])
     directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  
     visited, path = [], []
@@ -80,7 +80,7 @@ if __name__ == "__main__" :
     start = (0, 0)
     end = (9, 9)
 
-    visited, path = dfs_solver(maze, start, end)
+    visited, path = solver(maze, start, end)
 
     print("route:", visited)
     print("path:", path)
