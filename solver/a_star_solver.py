@@ -4,7 +4,7 @@ def heuristic(p1, p2):    #휴리스틱 함수 h(x)
     return abs((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
     #return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1]))
 
-def a_star(maze, start, end):
+def solver(maze, start, end):
     n, m = len(maze), len(maze[0])
     queue = deque([(0, start)])
     come_from = {}  # 경로 추적용 딕셔너리
@@ -56,7 +56,7 @@ if __name__ == "__main__" :
     start = (0, 0)
     end = (9, 9)
 
-    visited, path = a_star(maze, start, end)
+    visited, path = solver(maze, start, end)
 
     print("route:", visited)
     print("path:", path)
