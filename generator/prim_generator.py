@@ -1,7 +1,7 @@
 import random
 
 # Prim 알고리즘을 이용한 미로 생성 함수
-def generate_maze(grid, grid_size):
+def generater(grid, grid_size):
     # 미로의 초기 상태 (모든 벽을 '0'으로 설정)
     walls = []
     
@@ -46,10 +46,10 @@ def print_maze(grid):
     for row in grid:
         print(' '.join(['#' if cell == 0 else ' ' for cell in row]))
 
-# 예시 사용
-grid_size = 21  # 홀수 크기로 설정
-grid = [[0 for _ in range(grid_size)] for _ in range(grid_size)]  # 벽으로만 이루어진 그리드
+if __name__ == "__main__" :
+    grid_size = 21  # 홀수 크기로 설정
+    grid = [[0 for _ in range(grid_size)] for _ in range(grid_size)]  # 벽으로만 이루어진 그리드
 
-generate_maze(grid, grid_size)  # Prim 알고리즘을 이용하여 미로 생성
-print_maze(grid)  # 미로 출력
+    generater(grid, grid_size)  # Prim 알고리즘을 이용하여 미로 생성
+    print_maze(grid)  # 미로 출력
 
