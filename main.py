@@ -6,7 +6,6 @@ from solver import bfs_solver, dfs_solver, dijkstra_solver, a_star_solver, rando
 import time
 import threading
 
-
 class Button:
     def __init__(self, text, x, y, width, height):
         self.text = text
