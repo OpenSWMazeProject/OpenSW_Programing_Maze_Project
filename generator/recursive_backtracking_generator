@@ -20,12 +20,15 @@ def generator(grid, grid_size):
     generate_maze(grid, 0, 0)  # 미로 생성 시작
     return grid
 
-# 예시 사용
-#grid_size = 21  # 홀수 크기로 설정
-#maze = create_maze(grid_size)
 
-# 미로 출력
-'''
-for row in maze:
-    print(' '.join(['#' if cell == 0 else ' ' for cell in row]))
-'''
+if __name__ == "__main__" :
+
+    # 예시 사용
+    grid_size = 21  # 홀수 크기로 설정
+    maze = create_maze(grid_size)
+
+    # 미로 출력
+
+    for row in maze:
+        print(' '.join(['#' if cell == 0 else ' ' for cell in row]))
+
