@@ -58,5 +58,7 @@ if __name__ == "__main__" :
     grid = [[0 for _ in range(grid_size)] for _ in range(grid_size)]
     
     generator(grid, grid_size)
+    
     for row in grid:
         print(' '.join(['#' if cell == 0 else ' ' for cell in row]))
+
