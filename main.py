@@ -2,23 +2,49 @@
 import pygame
 import sys
 import generator
-from solver import bfs_solver, dfs_solver, dijkstra_solver, a_star_solver, random_mouse_solver, righthand_solver, tremaux_solver
 import time
 import threading
+import importlib
 
+#버튼 클래스
 class Button:
-    def __init__(self, text, x, y, width, height):
+    def __init__(self, surface, text, x, y, width, height):
         self.text = text
         self.rect = pygame.Rect(x, y, width, height)
+        self.surface = surface
 
-    def draw(self, surface):
-        pygame.draw.rect(surface, (200, 200, 200), self.rect)
+    def draw(self):
+        pygame.draw.rect(self.surface, (200, 200, 200), self.rect)
         text_surface = font.render(self.text, True, (0, 0, 0))
         text_rect = text_surface.get_rect(center=self.rect.center)
-        surface.blit(text_surface, text_rect)
+        self.surface.blit(text_surface, text_rect)
 
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
+        
+# 체크박스 클래스
+class CheckBox:
+    def __init__(self, surface, text, x, y, size):
+        self.rect = pygame.Rect(x, y, size, size)
+        self.checked = False
+        self.text = text
+        self.text_surface = font.render(text, True, (0, 0, 0))
+        self.text_rect = self.text_surface.get_rect(topleft=(x + size + 5, y))
+        self.surface = surface
+
+    def draw(self):
+        # 체크박스 배경 그리기
+        pygame.draw.rect(self.surface, (200, 200, 200), self.rect)
+        # 체크된 경우 체크 표시 그리기
+        if self.checked:
+            pygame.draw.line(self.surface, (0, 0, 0), (self.rect.x, self.rect.y), (self.rect.x + self.rect.width, self.rect.y + self.rect.height), 3)
+            pygame.draw.line(self.surface, (0, 0, 0), (self.rect.x + self.rect.width, self.rect.y), (self.rect.x, self.rect.y + self.rect.height), 3)
+        # 텍스트 그리기
+        self.surface.blit(self.text_surface, self.text_rect)
+
+    def toggle(self, pos):
+        if self.rect.collidepoint(pos):
+            self.checked = not self.checked
 
 # make 함수 정의
 def make():
@@ -45,9 +71,10 @@ def draw_grid(n):
             pygame.draw.rect(screen, color, rect, 0)
             pygame.draw.rect(screen, (0, 0, 0), rect, 2)  # 경계선
 
-#Solver 알고리즘 선택택 팝업
-def show_popup():
+#Generator 버튼 팝업 함수            
+def generator_popup(generator_module):
     popup_active = True
+    show_progress = CheckBox(screen, "Show Progress?", screen_size[0] // 2 - 100, screen_size[1] // 2 - 130, 20)
     while popup_active:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -64,18 +91,13 @@ def show_popup():
 
         # 항목 버튼 그리기
         item_buttons = [
-            Button("BFS", screen_size[0] // 2 - 100, screen_size[1] // 2 - 250, 200, 50),
-            Button("DFS", screen_size[0] // 2 - 100, screen_size[1] // 2 - 190, 200, 50),
-            Button("Dijkstra", screen_size[0] // 2 - 100, screen_size[1] // 2 - 130, 200, 50),
-            Button("A-Star", screen_size[0] // 2 - 100, screen_size[1] // 2 - 70, 200, 50),
-            Button("Random Mouse", screen_size[0] // 2 - 100, screen_size[1] // 2 - 10, 200, 50),
-            Button("Right-Hand", screen_size[0] // 2 - 100, screen_size[1] // 2 + 50, 200, 50),
-            Button("Tremaux", screen_size[0] // 2 - 100, screen_size[1] // 2 + 110, 200, 50),
-            
+            Button(screen, "Recursive_Backtracking", screen_size[0] // 2 - 100, screen_size[1] // 2 - 250, 200, 50),
+            Button(screen, "Prim", screen_size[0] // 2 - 100, screen_size[1] // 2 - 190, 200, 50),
         ]
-
         for button in item_buttons:
-            button.draw(screen)
+            button.draw()
+        # 체크박스 그리기
+        show_progress.draw()
 
         pygame.display.flip()
 
@@ -87,38 +109,93 @@ def show_popup():
                 pos = pygame.mouse.get_pos()
                 for button_index in range(len(item_buttons)):
                     if item_buttons[button_index].is_clicked(pos):
-                        if button_index == 0:
-                            visited, paths = bfs_solver.solver(grid, (0, 0), (grid_size-1, grid_size-1))
-                        if button_index == 1:
-                            visited, paths = dfs_solver.solver(grid, (0, 0), (grid_size-1, grid_size-1))
-                        if button_index == 2:
-                            visited, paths = dijkstra_solver.solver(grid, (0, 0), (grid_size-1, grid_size-1))   
-                        if button_index == 3:
-                            visited, paths = a_star_solver.solver(grid, (0, 0), (grid_size-1, grid_size-1))   
-                        if button_index == 4:
-                            visited, paths = random_mouse_solver.solver(grid, (0, 0), (grid_size-1, grid_size-1))  
-                        if button_index == 5:
-                            visited, paths = righthand_solver.solver(grid, (0, 0), (grid_size-1, grid_size-1))
-                        if button_index == 6:
-                            visited, paths = tremaux_solver.solver(grid, (0, 0), (grid_size-1, grid_size-1))
+                        visited = generator_module[button_index].generator(grid, grid_size)
 
                         popup_active = False
-    return visited, paths
-#계산된 탐색 목록, 경로를 실제로 그리기
-def draw_path(visited, paths):
+                show_progress.toggle(pos)
+                
+    return visited, show_progress.checked
 
+#Solver 버튼 팝업 함수            
+def solver_popup(solver_module):
+    popup_active = True
+    show_progress = CheckBox(screen, "Show Progress?", screen_size[0] // 2 - 100, screen_size[1] // 2 + 170, 20)
+    while popup_active:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                popup_active = False
+
+        screen.fill((255, 255, 255))
+        font = pygame.font.Font(None, 48)
+        text_surface = font.render("Select Solver:", True, (0, 0, 0))
+        screen.blit(text_surface, (screen_size[0] // 2 - text_surface.get_width() // 2, screen_size[1] // 2 - 300))
+
+        # 항목 버튼 그리기
+        item_buttons = [
+            Button(screen, "BFS", screen_size[0] // 2 - 100, screen_size[1] // 2 - 250, 200, 50),
+            Button(screen, "DFS", screen_size[0] // 2 - 100, screen_size[1] // 2 - 190, 200, 50),
+            Button(screen, "Dijkstra", screen_size[0] // 2 - 100, screen_size[1] // 2 - 130, 200, 50),
+            Button(screen, "A-Star", screen_size[0] // 2 - 100, screen_size[1] // 2 - 70, 200, 50),
+            Button(screen, "Random Mouse", screen_size[0] // 2 - 100, screen_size[1] // 2 - 10, 200, 50),
+            Button(screen, "Right-Hand", screen_size[0] // 2 - 100, screen_size[1] // 2 + 50, 200, 50),
+            Button(screen, "Tremaux", screen_size[0] // 2 - 100, screen_size[1] // 2 + 110, 200, 50),
+            
+        ]
+
+        for button in item_buttons:
+            button.draw()
+        # 체크박스 그리기
+        show_progress.draw()
+        
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                for button_index in range(len(item_buttons)):
+                    if item_buttons[button_index].is_clicked(pos):
+                        visited, paths = solver_module[button_index].solver(grid, (0, 0), (grid_size-1, grid_size-1))
+
+                        popup_active = False
+                show_progress.toggle(pos)
+    return visited, paths, show_progress.checked
+
+#완성된 미로 출력
+def draw_maze(visited, show_progress):
     for visit in visited:
-        grid[visit[0]][visit[1]] = 2
-        time.sleep(0.1)
+        grid[visit[0]][visit[1]] = 1
+        if show_progress:
+            time.sleep(0.05)
+#계산된 경로 출력
+def draw_path(visited, paths, show_progress):
+    if show_progress:
+        for visit in visited:
+            grid[visit[0]][visit[1]] = 2
+            time.sleep(0.05)
     for path in paths:
         grid[path[0]][path[1]] = 3
         
-#탐색 목록, 경로 흔적 초기화        
 def init_grid():
     for x in range(grid_size):
         for y in range(grid_size):
             if grid[x][y] == 2 or grid[x][y] == 3:
                 grid[x][y] = 1
+
+#generator 모듈 import
+generator_list = ['recursive_backtracking_generator', 'prim_generator']
+generator_module = [importlib.import_module(f'generator.{module}') for module in generator_list]
+                
+#solver 모듈 import
+solver_list = ['bfs_solver', 'dfs_solver', 'dijkstra_solver', 'a_star_solver', 'random_mouse_solver', 'righthand_solver', 'tremaux_solver']
+solver_module = [importlib.import_module(f'solver.{module}') for module in solver_list]
+
 # Pygame 초기화
 pygame.init()
 
@@ -132,8 +209,8 @@ button_color = (0, 128, 255)
 button_hover_color = (0, 255, 255)
 button_rect = pygame.Rect(0, 0, 100, 50)
 
-generate_button = Button("Generate", 0, 0, 100, 50)
-solve_button = Button("Solve", 110, 0, 100, 50)
+generate_button = Button(screen, "Generate", 0, 0, 100, 50)
+solve_button = Button(screen, "Solve", 110, 0, 100, 50)
 
 # 그리드 설정
 grid_size = 21
@@ -149,6 +226,7 @@ color_active = pygame.Color('dodgerblue2')
 color = color_inactive
 text = ''
 
+#GUI 루
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -156,13 +234,14 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if generate_button.is_clicked(event.pos):
                 is_draw = True
-                generator.create_maze(grid)
-            if solve_button.is_clicked(event.pos):
+                visited, show_progress = generator_popup(generator_module)
+                #visualizer = threading.Thread(target = generator.generator, args = (grid, grid_size, true))
+                #visualizer.start()
 
-                visited, paths = show_popup()
+            if solve_button.is_clicked(event.pos):
+                visited, paths, show_progress = solver_popup(solver_module)
                 init_grid()
-                #Thread 모듈을 사용해 경로 표시를 실시간으로 수행
-                visualizer = threading.Thread(target = draw_path, args = (visited, paths))
+                visualizer = threading.Thread(target = draw_path, args = (visited, paths, show_progress))
                 visualizer.start()
                 
             if input_box.collidepoint(event.pos):
@@ -186,8 +265,8 @@ while running:
     screen.fill((255, 255, 255))  # 배경색 흰색
     if is_draw:
         draw_grid(grid_size)  # 그리드 그리기
-    generate_button.draw(screen)
-    solve_button.draw(screen)  # 버튼 그리기
+    generate_button.draw()
+    solve_button.draw()  # 버튼 그리기
     
     # 입력 박스 그리기
     input_box = pygame.Rect(220, 0, 100, 50)
