@@ -1,0 +1,50 @@
+import random
+
+def generator(grid, grid_size):
+    visited = []
+    grid = [[1 for _ in range(grid_size)] for _ in range(grid_size)]
+    for i in range(1, rows, 2):
+        for j in range(1, cols, 2):
+            grid[i][j] = 0
+            visited.append((i , j))
+            
+    for j in range(0, cols, 2):
+        grid[0][j] = nindex
+        nindex += 1
+        
+    for i in range(0, rows, 2):
+        for j in range(0, cols - 1, 2):
+            if random.choice([True, False]):
+                grid[i][j + 1] = 0
+                visited.append((i, j))
+            else:
+                if grid[i][j] != grid[i][j + 2]:
+                    target = grid[i][j + 2]
+                    for k in range(0, cols, 2):
+                        if grid[i][k] == target:
+                            grid[i][k] = grid[i][j]
+                            
+        for j in range(0, cols, 2):
+            if i != rows - 1:
+                grid[i + 2][j] = grid[i][j]
+                if random.choice([True, False]):
+                    temp = grid[i][j]
+                    count = sum(1 for z in range(0, cols, 2) if grid[i][z] == temp and grid[i + 1][z] == 1)
+                    if count > 1:
+                        grid[i + 1][j] = 0
+                        visited.append((i+1, j))
+                        grid[i + 2][j] = nindex
+                        nindex += 1
+
+    for j in range(0, cols - 2, 2):
+        if grid[rows - 2][j] != grid[rows - 2][j + 2]:
+            temp = grid[rows - 2][j + 2]
+            for z in range(0, cols, 2):
+                if grid[rows - 2][z] == temp:
+                    grid[rows - 2][z] = grid[rows - 2][j]
+
+    for i in range(0, rows, 2):
+        for j in range(0, cols, 2):
+            grid[i][j] = 1
+            
+    return visited
