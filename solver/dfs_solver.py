@@ -39,7 +39,8 @@ def solver(maze, start, end):
             path.append((x, y))
             return True
 
-        for dx, dy in directions:  
+        for dx, dy in directions:
+            #dfs 함수를 재귀 호출하여 깊이 우선 탐색
             if dfs(x + dx, y + dy):
                 path.append((x, y))
                 return True
