@@ -11,7 +11,7 @@ def solver(maze, start, end):
         if (x, y) not in visited:
             visited.append((x, y))
             path.append((x, y))
-
+        #갈 수 있는 통로중에 임의로 선택해서 탐색
         possible_moves = [(x + dx, y + dy) for dx, dy in directions if 0 <= x + dx < n and 0 <= y + dy < m and maze[x + dx][y + dy] == 1]
         
         if not possible_moves:
