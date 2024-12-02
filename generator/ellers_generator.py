@@ -15,13 +15,14 @@ def generator(grid_size):
     for i in range(grid_size):
         for j in range(grid_size):
             visited.append((i, j, grid[i][j]))
-
+    #첫 번째 행 초기화
     for j in range(0, cols, 2):
         grid[0][j] = index
         visited.append((0, j, grid[0][j]))
         index += 1
 
     for i in range(0, rows, 2):
+        #오른쪽 벽
         for j in range(0, cols - 2, 2):
             if random.choice([True, False]):
                 grid[i][j + 1] = 0
@@ -36,7 +37,7 @@ def generator(grid_size):
                         if grid[i][k] == target:
                             grid[i][k] = grid[i][j]
                             visited.append((i, k, grid[i][k]))
-
+        #아래쪽 벽
         for j in range(0, cols, 2):
             if i != rows - 1:
                 grid[i + 2][j] = grid[i][j]
@@ -51,7 +52,7 @@ def generator(grid_size):
                         grid[i + 2][j] = index
                         visited.append((i + 2, j, grid[i + 2][j]))
                         index += 1
-
+    #마지막 행
     for j in range(0, cols - 2, 2):
         if grid[rows - 1][j] != grid[rows - 1][j + 2]:
             grid[rows - 1][j+1] = 1
@@ -63,7 +64,7 @@ def generator(grid_size):
                 if grid[rows - 1][z] == temp:
                     grid[rows - 1][z] = grid[rows - 1][j]
                     visited.append((rows - 1, z, grid[rows - 1][z]))
-
+    #찌꺼기 제거
     for i in range(0, rows, 2):
         for j in range(0, cols, 2):
             grid[i][j] = 1
