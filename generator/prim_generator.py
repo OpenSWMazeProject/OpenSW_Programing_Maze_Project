@@ -2,10 +2,13 @@ import random
 import numpy as np
 
 #prim 알고리즘을 사용하여 미로 생성
-def generator(grid, grid_size):
+def generator(grid_size):
+    grid = [[0 for _ in range(grid_size)] for _ in range(grid_size)]
+    visited = []
     s = set()
     x, y = (0, 0)
     grid[x][y] = 1
+    visited.append((x, y, grid[x][y]))
     fs = frontier(x, y, grid, grid_size)
     for f in fs:
         s.add(f)
@@ -15,10 +18,12 @@ def generator(grid, grid_size):
         ns = neighbours(x, y, grid, grid_size)
         if ns:
             nx, ny = random.choice(tuple(ns))
-            connect(x, y, nx, ny, grid)
+            connect(x, y, nx, ny, grid, visited)
         fs = frontier(x, y, grid, grid_size)
         for f in fs:
             s.add(f)
+            
+    return visited
             
 def frontier(x, y, grid, grid_size):
     f = set()
@@ -47,11 +52,13 @@ def neighbours(x, y, grid, grid_size):
 
     return n
         
-def connect(x1, y1, x2, y2, grid):
+def connect(x1, y1, x2, y2, grid, visited):
     x = (x1 + x2) // 2
     y = (y1 + y2) // 2
     grid[x1][y1] = 1
+    visited.append((x1, y1, grid[x1][y1]))
     grid[x][y] = 1
+    visited.append((x, y, grid[x][y]))
     
 if __name__ == "__main__" :
     grid_size = 21
