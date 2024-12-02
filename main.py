@@ -162,7 +162,6 @@ def solver_popup(solver_module):
                 pos = pygame.mouse.get_pos()
                 for button_index in range(len(item_buttons)):
                     if item_buttons[button_index].is_clicked(pos):
-                        print(grid)
                         visited, paths = solver_module[button_index].solver(grid, (0, 0), (grid_size-1, grid_size-1))
 
                         popup_active = False
@@ -189,9 +188,7 @@ def clear_path():
         for y in range(grid_size):
             if grid[x][y] == "visited" or grid[x][y] == "path":
                 grid[x][y] = 1
-#미로 초기화                
-def init_maze():
-    grid = [[0 for _ in range(grid_size)] for _ in range(grid_size)]
+
 #generator 모듈 import
 generator_list = ['recursive_backtracking_generator', 'prim_generator', 'ellers_generator']
 generator_module = [importlib.import_module(f'generator.{module}') for module in generator_list]
@@ -236,13 +233,13 @@ while running:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             if generate_button.is_clicked(event.pos):
-                grid = [[0 for _ in range(grid_size)] for _ in range(grid_size)]
+                grid = [[0 for _ in range(grid_size)] for _ in range(grid_size)] #경로 생성 전 미리 미로 초기화
                 visited, show_progress = generator_popup(generator_module)
                 visualizer = threading.Thread(target = draw_maze, args = (visited, show_progress))
                 visualizer.start()
 
             if solve_button.is_clicked(event.pos):
-                clear_path()
+                clear_path() #Solver 실행시 이전에 실행되었던 Solver 흔적 제거
                 visited, paths, show_progress = solver_popup(solver_module)
                 visualizer = threading.Thread(target = draw_path, args = (visited, paths, show_progress))
                 visualizer.start()
