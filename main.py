@@ -62,9 +62,9 @@ def draw_grid(n):
                 color = (0, 0, 0)  # 그리드 칸이 벽이라면 검은색
             elif grid[i][j] == 1: #그리드 칸이 길라면 회색
                 color = (200, 200, 200)
-            elif grid[i][j] == 2: #그리드 칸이 방문 경로라면 파란색
+            elif grid[i][j] == "visited": #그리드 칸이 방문 경로라면 파란색
                 color = (0, 0, 255)
-            elif grid[i][j] == 3: #그리드 칸이 최종 경로라면 초록색
+            elif grid[i][j] == "path": #그리드 칸이 최종 경로라면 초록색
                 color = (0, 255, 0)
             else:
                 color = (200, 200, 200)  # 기본 색상
@@ -74,7 +74,7 @@ def draw_grid(n):
 #Generator 버튼 팝업 함수            
 def generator_popup(generator_module):
     popup_active = True
-    show_progress = CheckBox(screen, "Show Progress?", screen_size[0] // 2 - 100, screen_size[1] // 2 - 130, 20)
+    show_progress = CheckBox(screen, "Show Progress?", screen_size[0] // 2 - 100, screen_size[1] // 2 - 70, 20)
     while popup_active:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -93,6 +93,7 @@ def generator_popup(generator_module):
         item_buttons = [
             Button(screen, "Recursive_Backtracking", screen_size[0] // 2 - 100, screen_size[1] // 2 - 250, 200, 50),
             Button(screen, "Prim", screen_size[0] // 2 - 100, screen_size[1] // 2 - 190, 200, 50),
+            Button(screen, "Eller's Algorithm", screen_size[0] // 2 - 100, screen_size[1] // 2 - 130, 200, 50),
         ]
         for button in item_buttons:
             button.draw()
@@ -109,7 +110,7 @@ def generator_popup(generator_module):
                 pos = pygame.mouse.get_pos()
                 for button_index in range(len(item_buttons)):
                     if item_buttons[button_index].is_clicked(pos):
-                        visited = generator_module[button_index].generator(grid, grid_size)
+                        visited = generator_module[button_index].generator(grid_size)
 
                         popup_active = False
                 show_progress.toggle(pos)
@@ -161,6 +162,7 @@ def solver_popup(solver_module):
                 pos = pygame.mouse.get_pos()
                 for button_index in range(len(item_buttons)):
                     if item_buttons[button_index].is_clicked(pos):
+                        print(grid)
                         visited, paths = solver_module[button_index].solver(grid, (0, 0), (grid_size-1, grid_size-1))
 
                         popup_active = False
@@ -170,26 +172,28 @@ def solver_popup(solver_module):
 #완성된 미로 출력
 def draw_maze(visited, show_progress):
     for visit in visited:
-        grid[visit[0]][visit[1]] = 1
+        grid[visit[0]][visit[1]] = visit[2]
         if show_progress:
-            time.sleep(0.05)
+            time.sleep(0.01)
 #계산된 경로 출력
 def draw_path(visited, paths, show_progress):
     if show_progress:
         for visit in visited:
-            grid[visit[0]][visit[1]] = 2
-            time.sleep(0.05)
+            grid[visit[0]][visit[1]] = "visited"
+            time.sleep(0.01)
     for path in paths:
-        grid[path[0]][path[1]] = 3
-        
-def init_grid():
+        grid[path[0]][path[1]] = "path"
+#경로 지우기        
+def clear_path():
     for x in range(grid_size):
         for y in range(grid_size):
-            if grid[x][y] == 2 or grid[x][y] == 3:
+            if grid[x][y] == "visited" or grid[x][y] == "path":
                 grid[x][y] = 1
-
+#미로 초기화                
+def init_maze():
+    grid = [[0 for _ in range(grid_size)] for _ in range(grid_size)]
 #generator 모듈 import
-generator_list = ['recursive_backtracking_generator', 'prim_generator']
+generator_list = ['recursive_backtracking_generator', 'prim_generator', 'ellers_generator']
 generator_module = [importlib.import_module(f'generator.{module}') for module in generator_list]
                 
 #solver 모듈 import
@@ -204,7 +208,7 @@ font = pygame.font.Font(None, 36)
 # 화면 크기와 색상 설정
 screen_size = (900, 900)
 screen = pygame.display.set_mode(screen_size)
-pygame.display.set_caption('5x5 그리드 예제')
+pygame.display.set_caption('OpenSW_Maze_Project')
 button_color = (0, 128, 255)
 button_hover_color = (0, 255, 255)
 button_rect = pygame.Rect(0, 0, 100, 50)
@@ -215,32 +219,31 @@ solve_button = Button(screen, "Solve", 110, 0, 100, 50)
 # 그리드 설정
 grid_size = 21
 
-grid = [[0 for _ in range(grid_size)] for _ in range(grid_size)]
+grid = [[1 for _ in range(grid_size)] for _ in range(grid_size)]
 
 # 메인 루프
 running = True
-is_draw = False
 active = False
 color_inactive = pygame.Color('lightskyblue3')
 color_active = pygame.Color('dodgerblue2')
 color = color_inactive
 text = ''
 
-#GUI 루
+#GUI 루프
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             if generate_button.is_clicked(event.pos):
-                is_draw = True
+                grid = [[0 for _ in range(grid_size)] for _ in range(grid_size)]
                 visited, show_progress = generator_popup(generator_module)
-                #visualizer = threading.Thread(target = generator.generator, args = (grid, grid_size, true))
-                #visualizer.start()
+                visualizer = threading.Thread(target = draw_maze, args = (visited, show_progress))
+                visualizer.start()
 
             if solve_button.is_clicked(event.pos):
+                clear_path()
                 visited, paths, show_progress = solver_popup(solver_module)
-                init_grid()
                 visualizer = threading.Thread(target = draw_path, args = (visited, paths, show_progress))
                 visualizer.start()
                 
@@ -263,8 +266,7 @@ while running:
 
     # 화면 업데이트
     screen.fill((255, 255, 255))  # 배경색 흰색
-    if is_draw:
-        draw_grid(grid_size)  # 그리드 그리기
+    draw_grid(grid_size)  # 그리드 그리기
     generate_button.draw()
     solve_button.draw()  # 버튼 그리기
     
