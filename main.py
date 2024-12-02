@@ -120,7 +120,7 @@ def generator_popup(generator_module):
 #Solver 버튼 팝업 함수            
 def solver_popup(solver_module):
     popup_active = True
-    show_progress = CheckBox(screen, "Show Progress?", screen_size[0] // 2 - 100, screen_size[1] // 2 + 170, 20)
+    show_progress = CheckBox(screen, "Show Progress?", screen_size[0] // 2 - 100, screen_size[1] // 2 + 50, 20)
     while popup_active:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -139,11 +139,9 @@ def solver_popup(solver_module):
         item_buttons = [
             Button(screen, "BFS", screen_size[0] // 2 - 100, screen_size[1] // 2 - 250, 200, 50),
             Button(screen, "DFS", screen_size[0] // 2 - 100, screen_size[1] // 2 - 190, 200, 50),
-            Button(screen, "Dijkstra", screen_size[0] // 2 - 100, screen_size[1] // 2 - 130, 200, 50),
-            Button(screen, "A-Star", screen_size[0] // 2 - 100, screen_size[1] // 2 - 70, 200, 50),
-            Button(screen, "Random Mouse", screen_size[0] // 2 - 100, screen_size[1] // 2 - 10, 200, 50),
-            Button(screen, "Right-Hand", screen_size[0] // 2 - 100, screen_size[1] // 2 + 50, 200, 50),
-            Button(screen, "Tremaux", screen_size[0] // 2 - 100, screen_size[1] // 2 + 110, 200, 50),
+            Button(screen, "A-Star", screen_size[0] // 2 - 100, screen_size[1] // 2 - 130, 200, 50),
+            Button(screen, "Random Mouse", screen_size[0] // 2 - 100, screen_size[1] // 2 - 70, 200, 50),
+            Button(screen, "Right-Hand", screen_size[0] // 2 - 100, screen_size[1] // 2 -10, 200, 50),
             
         ]
 
@@ -194,7 +192,7 @@ generator_list = ['recursive_backtracking_generator', 'prim_generator', 'ellers_
 generator_module = [importlib.import_module(f'generator.{module}') for module in generator_list]
                 
 #solver 모듈 import
-solver_list = ['bfs_solver', 'dfs_solver', 'dijkstra_solver', 'a_star_solver', 'random_mouse_solver', 'righthand_solver', 'tremaux_solver']
+solver_list = ['bfs_solver', 'dfs_solver', 'a_star_solver', 'random_mouse_solver', 'righthand_solver']
 solver_module = [importlib.import_module(f'solver.{module}') for module in solver_list]
 
 # Pygame 초기화
