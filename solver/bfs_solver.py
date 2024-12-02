@@ -5,7 +5,7 @@ def solver(maze, start, end):
     directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  
     visited = []
     queue = deque([(start[0], start[1], [])])
-
+    #queue를 사용하여 너비 우선 탐색
     while queue:
         x, y, path = queue.popleft()
 
