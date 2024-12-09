@@ -86,7 +86,7 @@ def generator_popup(generator_module):
 
         screen.fill((255, 255, 255))
         font = pygame.font.Font(None, 48)
-        text_surface = font.render("Select Solver:", True, (0, 0, 0))
+        text_surface = font.render("Select Generator:", True, (0, 0, 0))
         screen.blit(text_surface, (screen_size[0] // 2 - text_surface.get_width() // 2, screen_size[1] // 2 - 300))
 
         # 항목 버튼 그리기
